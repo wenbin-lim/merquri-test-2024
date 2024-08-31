@@ -8,11 +8,12 @@ import {
   deleteSearchResult,
 } from "./api/data";
 
+// components
+import TodayWeatherCard from "./components/TodayWeatherCard";
+import SearchHistoryItem from "./components/SearchHistoryItem";
+
 // assets
-import cloudImage from "./assets/cloud.png";
-import sunImage from "./assets/sun.png";
 import SearchIcon from "./icons/SearchIcon";
-import DeleteIcon from "./icons/DeleteIcon";
 
 type SearchHistoryItem = {
   id: string;
@@ -25,11 +26,11 @@ function App() {
   const [locationQuery, setLocationQuery] = useState("");
 
   // today weather state
-  const [todayWeatherDegree, setTodayWeatherDegree] = useState(0);
-  const [todayWeatherHigh, setTodayWeatherHigh] = useState(0);
-  const [todayWeatherLow, setTodayWeatherLow] = useState(0);
+  const [todayWeatherTemperature, setTodayWeatherTemperature] = useState(0);
+  const [todayWeatherTempHigh, setTodayWeatherTempHigh] = useState(0);
+  const [todayWeatherTempLow, setTodayWeatherTempLow] = useState(0);
   const [todayWeatherLocation, setTodayWeatherLocation] = useState("");
-  const [todayWeatherTime, setTodayWeatherTime] = useState("");
+  const [todayWeatherDateTime, setTodayWeatherDateTime] = useState("");
   const [todayWeatherHumidity, setTodayWeatherHumidity] = useState(0);
   const [todayWeatherDescription, setTodayWeatherDescription] = useState("");
   const [todayWeatherImageAsSun, setTodayWeatherImageAsSun] = useState(false);
@@ -51,16 +52,16 @@ function App() {
         return;
       }
 
-      setTodayWeatherDegree(Math.round(res.main.temp));
-      setTodayWeatherHigh(Math.round(res.main.temp_max));
-      setTodayWeatherLow(Math.round(res.main.temp_min));
+      setTodayWeatherTemperature(Math.round(res.main.temp));
+      setTodayWeatherTempHigh(Math.round(res.main.temp_max));
+      setTodayWeatherTempLow(Math.round(res.main.temp_min));
       setTodayWeatherLocation(`${res.name}, ${res.sys.country}`);
 
       // convert unix timestamp to date
       const date = new Date(res.dt * 1000);
       const dateString = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 
-      setTodayWeatherTime(dateString);
+      setTodayWeatherDateTime(dateString);
 
       setTodayWeatherHumidity(res.main.humidity);
       setTodayWeatherDescription(res.weather[0].main);
@@ -117,57 +118,28 @@ function App() {
       </header>
 
       <section className="relative mx-auto mt-32 max-w-screen-sm rounded-[40px] border border-white/50 bg-white/20 p-8 text-black dark:border-transparent dark:bg-[#1A1A1A4D] dark:text-white">
-        {/* <img
-          className="absolute -top-1/4 right-4 h-[150px] w-auto sm:-top-1/2 sm:right-0 sm:h-[300px]"
-          src={todayWeatherImageAsSun ? sunImage : cloudImage}
-          alt={todayWeatherImageAsSun ? "sun image" : "cloud image"}
-        /> */}
-        <div className="flex justify-between gap-x-4">
-          <div>
-            <p>Today's Weather</p>
-            <p className="text-primary text-8xl font-bold dark:text-white">
-              {todayWeatherDegree}&#176;
-            </p>
-            <p>
-              H: {todayWeatherHigh}&#176; L: {todayWeatherLow}&#176;
-            </p>
-            <p className="font-bold text-[#666666] dark:text-white">
-              {todayWeatherLocation || "-"}
-            </p>
-          </div>
-          <div className="self-end text-right text-[#666666] sm:flex sm:flex-1 sm:flex-row-reverse sm:justify-between sm:gap-x-4 sm:text-center dark:text-white">
-            <p>{todayWeatherDescription || "-"}</p>
-            <p>Humidity: {todayWeatherHumidity}%</p>
-            <p>{todayWeatherTime || "-"}</p>
-          </div>
-        </div>
+        <TodayWeatherCard
+          temperature={todayWeatherTemperature}
+          tempHigh={todayWeatherTempHigh}
+          tempLow={todayWeatherTempLow}
+          location={todayWeatherLocation}
+          dateTime={todayWeatherDateTime}
+          humidity={todayWeatherHumidity}
+          description={todayWeatherDescription}
+          showImageAsSun={todayWeatherImageAsSun}
+        />
 
         <div className="mt-8 space-y-4 rounded-[24px] bg-white/20 p-6 dark:bg-[#1A1A1A4D]">
           <p>Search History</p>
           {searchHistory.map((item) => (
-            <div
+            <SearchHistoryItem
               key={item.id}
-              className="flex rounded-[16px] bg-white/40 px-4 py-3 dark:bg-[#1A1A1A80]"
-            >
-              <div className="flex-1 sm:mr-2 sm:flex sm:items-center">
-                <p className="mr-auto">{item.name}</p>
-                <p className="text-sm dark:text-white/50">{item.time}</p>
-              </div>
-              <div className="flex gap-x-2">
-                <button
-                  className="rounded-full bg-white p-2 text-black/50 shadow-md dark:border-2 dark:border-white/40 dark:bg-transparent dark:text-white/50 dark:shadow-none"
-                  onClick={() => getWeather(item.name)}
-                >
-                  <SearchIcon />
-                </button>
-                <button
-                  className="rounded-full bg-white p-2 text-black/50 shadow-md dark:border-2 dark:border-white/40 dark:bg-transparent dark:text-white/50 dark:shadow-none"
-                  onClick={() => onClickDeleteSearchResult(item.id)}
-                >
-                  <DeleteIcon />
-                </button>
-              </div>
-            </div>
+              id={item.id}
+              name={item.name}
+              dateTime={item.time}
+              onClickSearch={() => getWeather(item.name)}
+              onClickDelete={() => onClickDeleteSearchResult(item.id)}
+            />
           ))}
         </div>
       </section>
