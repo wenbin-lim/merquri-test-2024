@@ -27,3 +27,35 @@ export const getWeatherByLocationName = async (locationName: string) => {
     return null;
   }
 };
+
+export const getSearchHistory = () => {
+  const searchHistory = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+
+    if (key) {
+      const value = localStorage.getItem(key);
+
+      if (value) {
+        searchHistory.push({ id: key, ...JSON.parse(value) });
+      }
+    }
+  }
+
+  // sort by id
+  searchHistory.sort((a, b) => Number(b.id) - Number(a.id));
+
+  return searchHistory;
+};
+
+export const storeSearchResult = (name: string, time: string) => {
+  // store in localstorage
+  // no id, using timestamp as id
+  const id = Date.now();
+  localStorage.setItem(`${id}`, JSON.stringify({ name, time }));
+};
+
+export const deleteSearchResult = (id: string) => {
+  localStorage.removeItem(id);
+};

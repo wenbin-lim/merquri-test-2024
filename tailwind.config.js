@@ -18,11 +18,7 @@ export default {
         "input-label": {
           DEFAULT: "rgba(0, 0, 0, 0.4)",
           dark: "rgba(255, 255, 255, 0.4)"
-        },
-        "result-section": {
-          DEFAULT: "rgba(255, 255, 255, 0.2)",
-          dark: "rgba(26, 26, 26, 0.3)"
-        },
+        }
       }
     },
   },
