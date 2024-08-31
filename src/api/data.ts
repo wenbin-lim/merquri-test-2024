@@ -35,6 +35,8 @@ export const getSearchHistory = () => {
     const key = localStorage.key(i);
 
     if (key) {
+      if (key === "theme") continue;
+
       const value = localStorage.getItem(key);
 
       if (value) {

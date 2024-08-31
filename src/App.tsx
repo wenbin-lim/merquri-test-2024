@@ -12,6 +12,7 @@ import {
 import Input from "./components/Input";
 import TodayWeatherCard from "./components/TodayWeatherCard";
 import SearchHistoryItem from "./components/SearchHistoryItem";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
 // assets
 import LoaderIcon from "./icons/LoaderIcon";
@@ -186,6 +187,8 @@ function App() {
           </div>
         )}
       </section>
+
+      <ThemeSwitcher />
 
       <Toaster position="bottom-center" />
     </main>
