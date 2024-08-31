@@ -21,10 +21,12 @@ const Input = ({ name, value, onChange, isAutoFocus, required }: Props) => {
       <input
         className="bg-transparent focus:outline-none"
         type="text"
+        id={name}
         name={name}
         value={value}
         onChange={onChange}
         autoFocus={isAutoFocus}
+        autoComplete="off"
       />
     </div>
   );
