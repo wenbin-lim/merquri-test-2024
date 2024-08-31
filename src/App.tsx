@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 import { getWeatherByLocationName } from "./api/data";
 
@@ -26,11 +27,9 @@ function App() {
       const res = await getWeatherByLocationName(locationQuery);
 
       if (!res) {
-        console.log("no location found");
+        toast.error("No location found");
         return;
       }
-
-      console.log(res);
 
       setTodayWeatherDegree(Math.round(res.main.temp));
       setTodayWeatherHigh(Math.round(res.main.temp_max));
@@ -56,6 +55,7 @@ function App() {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -113,6 +113,7 @@ function App() {
           </div>
         </div>
       </section>
+      <Toaster position="bottom-center" />
     </main>
   );
 }

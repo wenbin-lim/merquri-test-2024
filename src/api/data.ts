@@ -10,7 +10,6 @@ export const getWeatherByLocationName = async (locationName: string) => {
 
     // no location found
     if (locationRes.data.length === 0) {
-      console.log("no location found");
       return null;
     }
 
