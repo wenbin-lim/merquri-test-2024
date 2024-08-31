@@ -13,6 +13,7 @@ import TodayWeatherCard from "./components/TodayWeatherCard";
 import SearchHistoryItem from "./components/SearchHistoryItem";
 
 // assets
+import LoaderIcon from "./icons/LoaderIcon";
 import SearchIcon from "./icons/SearchIcon";
 
 type SearchHistoryItem = {
@@ -24,8 +25,11 @@ type SearchHistoryItem = {
 function App() {
   // query state
   const [locationQuery, setLocationQuery] = useState("");
+  const [queryLoading, setQueryLoading] = useState(false);
 
   // today weather state
+  const [emptyTodayWeather, setEmptyTodayWeather] = useState(true);
+
   const [todayWeatherTemperature, setTodayWeatherTemperature] = useState(0);
   const [todayWeatherTempHigh, setTodayWeatherTempHigh] = useState(0);
   const [todayWeatherTempLow, setTodayWeatherTempLow] = useState(0);
@@ -38,14 +42,18 @@ function App() {
   // search history state
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
 
-  // populate search history on load
   useEffect(() => {
+    // populate search history on load
     setSearchHistory(getSearchHistory());
   }, []);
 
   const getWeather = async (query: string) => {
+    setEmptyTodayWeather(false);
+    setQueryLoading(true);
+
     try {
       const res = await getWeatherByLocationName(query);
+      setQueryLoading(false);
 
       if (!res) {
         toast.error("No location found");
@@ -87,11 +95,17 @@ function App() {
   const onClickDeleteSearchResult = (id: string) => {
     deleteSearchResult(id);
     setSearchHistory(getSearchHistory());
+    toast.success("Search result deleted");
   };
 
   return (
     <main className="h-screen overflow-auto bg-[url('./assets/bg-light.png')] p-4 dark:bg-[url('./assets/bg-dark.png')]">
-      <header className="mx-auto flex max-w-screen-sm gap-x-4">
+      <form
+        className="mx-auto flex max-w-screen-sm gap-x-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
         <div className="bg-input dark:bg-input-dark flex w-full flex-col overflow-hidden rounded-[20px] px-6 py-2 text-black dark:text-white">
           <label
             className="text-input-label dark:text-input-label-dark text-xs"
@@ -110,38 +124,52 @@ function App() {
         </div>
 
         <button
+          type="submit"
           className="bg-primary dark:bg-primary-dark rounded-[20px] px-4 text-white"
           onClick={() => getWeather(locationQuery)}
         >
           <SearchIcon />
         </button>
-      </header>
+      </form>
 
-      <section className="relative mx-auto mt-32 max-w-screen-sm rounded-[40px] border border-white/50 bg-white/20 p-8 text-black dark:border-transparent dark:bg-[#1A1A1A4D] dark:text-white">
-        <TodayWeatherCard
-          temperature={todayWeatherTemperature}
-          tempHigh={todayWeatherTempHigh}
-          tempLow={todayWeatherTempLow}
-          location={todayWeatherLocation}
-          dateTime={todayWeatherDateTime}
-          humidity={todayWeatherHumidity}
-          description={todayWeatherDescription}
-          showImageAsSun={todayWeatherImageAsSun}
-        />
+      <section className="relative mx-auto mt-32 flex max-w-screen-sm flex-col gap-y-8 rounded-[40px] border border-white/50 bg-white/20 p-8 text-black dark:border-transparent dark:bg-[#1A1A1A4D] dark:text-white">
+        {emptyTodayWeather && searchHistory.length === 0 && (
+          <p className="text-center">Search for a weather result now!</p>
+        )}
 
-        <div className="mt-8 space-y-4 rounded-[24px] bg-white/20 p-6 dark:bg-[#1A1A1A4D]">
-          <p>Search History</p>
-          {searchHistory.map((item) => (
-            <SearchHistoryItem
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              dateTime={item.time}
-              onClickSearch={() => getWeather(item.name)}
-              onClickDelete={() => onClickDeleteSearchResult(item.id)}
+        {!emptyTodayWeather &&
+          (queryLoading ? (
+            <div className="flex justify-center">
+              <LoaderIcon />
+            </div>
+          ) : (
+            <TodayWeatherCard
+              temperature={todayWeatherTemperature}
+              tempHigh={todayWeatherTempHigh}
+              tempLow={todayWeatherTempLow}
+              location={todayWeatherLocation}
+              dateTime={todayWeatherDateTime}
+              humidity={todayWeatherHumidity}
+              description={todayWeatherDescription}
+              showImageAsSun={todayWeatherImageAsSun}
             />
           ))}
-        </div>
+
+        {searchHistory.length > 0 && (
+          <div className="space-y-4 rounded-[24px] bg-white/20 p-6 dark:bg-[#1A1A1A4D]">
+            <p>Search History</p>
+            {searchHistory.map((item) => (
+              <SearchHistoryItem
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                dateTime={item.time}
+                onClickSearch={() => getWeather(item.name)}
+                onClickDelete={() => onClickDeleteSearchResult(item.id)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <Toaster position="bottom-center" />
